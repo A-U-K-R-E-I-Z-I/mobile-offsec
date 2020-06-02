@@ -49,8 +49,6 @@ while [ "$1" != "" ]; do
     shift
 done
 
-banner
-
 if [ -z "$SERIAL_PORT" ]
 then
     echo "[!] Serial port can't be empty!"
@@ -61,7 +59,7 @@ fi
 
 if [ -z "$CERTIFICATE_PATH" ]
 then
-    echo "[!] Serial port can't be empty!"
+    echo "[!] Certificate PATH can't be empty!"
     echo "[+] Try --help"
     echo
     exit 111

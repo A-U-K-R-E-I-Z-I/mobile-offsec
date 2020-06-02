@@ -19,7 +19,7 @@ function usage() {
     echo -e "\\t-c --check            - Check if Android Tools is present."
     echo -e "\\t-i --install          - Setup Android SDK."
     echo -e "\\t-u --uninstall        - Uninstall Android Studio and Android SDK."
-    echo -e "\\t-h --hrlp             - Show this help and exit."
+    echo -e "\\t-h --help             - Show this help and exit."
     echo
 }
 
