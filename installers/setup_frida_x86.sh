@@ -36,4 +36,4 @@ adb push /tmp/frida /data/local/tmp
 echo "[+] Granting execute privileges..."
 adb shell "su 0 chmod 077 /data/local/tmp/frida"
 echo "[+] Starting Frida Server as root user..."
-'adb shell "su 0 ./data/local/tmp/frida"'&
+adb shell "su 0 ./data/local/tmp/frida"
