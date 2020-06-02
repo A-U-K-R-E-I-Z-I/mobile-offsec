@@ -13,14 +13,16 @@ function usage()
     echo "Note: ONLY works on API 29, API 25 and API 24."
     echo "Usage: $0 --serial=emnulator-5554 -c=certificate.crt"
     echo
-    echo -e "\t-h --help        - Show this message, and exit."
-    echo -e "\t-s --serial      - Android serial port to connect."
-    echo -e "\t-c --certificate - Certificate path."
-    echo -e "\t-a --api         - API level (default is 29)."
+    echo -e "\\t-h --help        - Show this message, and exit."
+    echo -e "\\t-s --serial      - Android serial port to connect."
+    echo -e "\\t-c --certificate - Certificate path."
+    echo -e "\\t-g --genymotion  - Install certificate on Genymotion VM instead of AVD."
+    echo -e "\\t-a --api         - API level (default is 29)."
     echo
 }
 
 API_LEVEL="29"
+IS_NOT_AVD="0"
 
 while [ "$1" != "" ]; do
     PARAM=$(echo "$1" | awk -F= '{print $1}')
@@ -32,6 +34,9 @@ while [ "$1" != "" ]; do
         ;;
         -a | --api)
             API_LEVEL=$VALUE
+        ;;
+        -g | --genymotion)
+        IS_NOT_AVD="1"
         ;;
         -c | --certificate)
             CERTIFICATE_PATH=$VALUE
@@ -99,7 +104,13 @@ if [ "$(adb shell getprop ro.build.version.sdk)" == "24" ] || [ "$(adb shell get
     openssl x509 -in "$CERTIFICATE_PATH"  -text -fingerprint -noout >> "$FILENAME"
 
     echo "[+] Making /system writable..."
-    adb -s "$SERIAL_PORT" shell "su 0 mount -o rw,remount /dev/block/vda /system"
+
+    if [ "$IS_NOT_AVD" == "1" ]; then
+        adb -s "$SERIAL_PORT" shell "su 0 mount -o rw,remount /system"
+    else
+        adb -s "$SERIAL_PORT" shell "su 0 mount -o rw,remount /dev/block/vda /system"
+    fi
+
     echo "[+] Pushing certificate to /sdcard/$FILENAME"
     adb -s "$SERIAL_PORT" push "$FILENAME" /sdcard
     echo "[+] Moving certificate ($FILENAME) to /system/etc/security/cacerts..."
@@ -107,7 +118,13 @@ if [ "$(adb shell getprop ro.build.version.sdk)" == "24" ] || [ "$(adb shell get
     echo "[+] Granting certificate permissions..."
     adb -s "$SERIAL_PORT" shell "su 0 chmod 644 /system/etc/security/cacerts/$FILENAME"
     echo "[+] Reverting /system to read-only..."
-    adb -s "$SERIAL_PORT" shell "su 0 mount -o ro,remount /dev/block/vda /system"
+
+    if [ "$IS_NOT_AVD" == "1" ]; then
+        adb -s "$SERIAL_PORT" shell "su 0 mount -o ro,remount /system"
+    else
+        adb -s "$SERIAL_PORT" shell "su 0 mount -o ro,remount /dev/block/vda /system"
+    fi
+
     echo "[+] Removing local generated certificate..."
     rm "$FILENAME"
 
