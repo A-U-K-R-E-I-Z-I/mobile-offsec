@@ -106,6 +106,8 @@ if [ "$(adb shell getprop ro.build.version.sdk)" == "24" ] || [ "$(adb shell get
     adb -s "$SERIAL_PORT" shell "su 0 mv /sdcard/$FILENAME /system/etc/security/cacerts"
     echo "[+] Granting certificate permissions..."
     adb -s "$SERIAL_PORT" shell "su 0 chmod 644 /system/etc/security/cacerts/$FILENAME"
+    echo "[+] Reverting /system to read-only..."
+    adb -s "$SERIAL_PORT" shell "su 0 mount -o ro,remount /dev/block/vda /system"
     echo "[+] Removing local generated certificate..."
     rm "$FILENAME"
 
