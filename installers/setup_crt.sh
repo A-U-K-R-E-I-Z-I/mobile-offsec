@@ -93,7 +93,7 @@ if [ "$API_LEVEL" != "$(adb shell getprop ro.build.version.sdk)" ]; then
     exit 111
 fi
 
-if [ "$(adb shell getprop ro.build.version.sdk)" == "24" ] || [ "$(adb shell getprop ro.build.version.sdk)" == "25" ]; then
+if [ "$(adb shell getprop ro.build.version.sdk)" == "24" ]; then
     FILENAME=$(openssl x509 -in "$CERTIFICATE_PATH" -hash -noout)
     FILENAME=$FILENAME".0"
 
@@ -128,11 +128,13 @@ if [ "$(adb shell getprop ro.build.version.sdk)" == "24" ] || [ "$(adb shell get
     echo "[+] Removing local generated certificate..."
     rm "$FILENAME"
 
-elif [ "$(adb shell getprop ro.build.version.sdk)" == "29" ];then
+
+
+elif [ "$(adb shell getprop ro.build.version.sdk)" == "29" ] || [ "$(adb shell getprop ro.build.version.sdk)" == "25" ];then
     FILENAME=$(openssl x509 -in "$CERTIFICATE_PATH" -hash -noout)
     FILENAME=$FILENAME".0"
 
-    echo "[+] Generated ßcertificate filename is $FILENAME"
+    echo "[+] Generated certificate filename is $FILENAME"
     echo "[+] Creating certificate file..."
 
     openssl x509 -in "$CERTIFICATE_PATH" >> "$FILENAME"
@@ -140,10 +142,12 @@ elif [ "$(adb shell getprop ro.build.version.sdk)" == "29" ];then
 
     echo "[+] Stoping current ADB server instance..."
     adb kill-server
+    adb wait-for-device
 
     echo "[+] Starting ADB server as root..."
     adb root
     adb disable-verity
+    echo "[+] Rebooting device..."
     adb reboot
 
     adb wait-for-device
